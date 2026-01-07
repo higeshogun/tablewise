@@ -389,6 +389,14 @@ document.addEventListener('DOMContentLoaded', () => {
             tempValueDisplay.textContent = 0.2;
         }
 
+        // Load Max Rows
+        const maxRowsInput = document.getElementById('max-rows');
+        if (result.local_max_rows) {
+            maxRowsInput.value = result.local_max_rows;
+        } else {
+            maxRowsInput.value = 50;
+        }
+
         if (result.data_context && result.data_meta) {
             currentDataContext = result.data_context;
             chatMessages = result.chat_history || [];
