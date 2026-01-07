@@ -305,10 +305,17 @@ const LocalProvider = {
                     }
                 } else {
                     console.warn('Filter returned 0 results or error, using full context.');
+                    // Fallback to full data count
+                    matchCountMsg = `\n\n[SYSTEM NOTE]: No specific filter results found (showing all data). Total rows available: ${data.length}.`;
                 }
             } catch (e) {
                 console.warn('Sandbox execution failed', e);
+                // Fallback to full data count
+                matchCountMsg = `\n\n[SYSTEM NOTE]: Filter execution failed (showing all data). Total rows available: ${data.length}.`;
             }
+        } else {
+            // Planning failed, full context
+            matchCountMsg = `\n\n[SYSTEM NOTE]: Showing all data. Total rows available: ${data.length}.`;
         }
 
         // 4. Final Answer Step
