@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // State
     let apiKey = '';
-    let modelName = 'gemini-1.5-flash';
+    let modelName = 'gemini-1.5-flash-001';
     let currentDataContext = '';
     let chatMessages = []; // Array to store history {sender, text}
     let customInstructions = '';
