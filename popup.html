@@ -122,6 +122,12 @@
                     <input type="text" id="base-url" placeholder="http://localhost:11434/v1">
                     <p class="help-text">URL for OpenAI-compatible endpoint (e.g. Ollama, LocalAI)</p>
                 </div>
+
+                <div class="input-group">
+                    <label for="max-rows">Max Context Rows (Default: 50)</label>
+                    <input type="number" id="max-rows" placeholder="50" min="5" max="1000">
+                    <p class="help-text">Limit rows sent to Local LLM (More = Slower).</p>
+                </div>
             </div>
 
             <div class="input-group">
