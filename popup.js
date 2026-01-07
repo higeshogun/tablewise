@@ -501,7 +501,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             addLoadingMessage();
-            const response = await AIService.generateResponse(config, currentDataContext, text, customInstructions);
+            const response = await AIService.generateResponse(config, currentDataContext, text, customInstructions, chatMessages);
             addMessage('ai', response);
             generateAndShowSuggestions(config, currentDataContext, customInstructions, text, response);
         } catch (error) {
