@@ -280,6 +280,7 @@ const LocalProvider = {
 
         // 3. Execution Step
         let filteredContext = context;
+        let matchCountMsg = '';
         if (funcBody) {
             try {
                 const result = await SandboxInterface.executeFilter(funcBody, data);
@@ -295,6 +296,13 @@ const LocalProvider = {
                     if (result.result.length > maxRows) {
                         filteredContext += `\n...(and ${result.result.length - maxRows} more matching rows)`;
                     }
+                    console.log(`[Agentic] Successfully filtered to ${result.result.length} rows.`);
+
+                    // Inject explicit count to help LLM
+                    matchCountMsg = `\n\n[SYSTEM NOTE]: The filter found exactly ${result.result.length} matching rows.`;
+                    if (result.result.length > maxRows) {
+                        matchCountMsg += ` Only the top ${maxRows} are shown below.`;
+                    }
                 } else {
                     console.warn('Filter returned 0 results or error, using full context.');
                 }
@@ -307,6 +315,7 @@ const LocalProvider = {
         let finalSystem = 'You are a helpful data analyst. Answer the user question based solely on the provided data context.';
         if (instructions) finalSystem += `\n\nCustom Instructions/Context:\n${instructions}`;
         finalSystem += `\n\nFiltered/Relevant Data:\n"""${filteredContext}"""`;
+        if (matchCountMsg) finalSystem += matchCountMsg; // Add the count hint
 
         return await LocalProvider.callLLM(config, finalSystem, question, undefined, chatHistory);
     },
