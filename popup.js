@@ -131,13 +131,16 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        const maxRows = parseInt(document.getElementById('max-rows').value, 10) || 50;
+
         await chrome.storage.local.set({
             'gemini_api_key': key,
             'gemini_provider': prov,
             'gemini_base_url': base,
             'gemini_model_name': model,
             'gemini_temperature': temp,
-            'gemini_custom_instructions': instructions
+            'gemini_custom_instructions': instructions,
+            'local_max_rows': maxRows
         });
 
         apiKey = key;
