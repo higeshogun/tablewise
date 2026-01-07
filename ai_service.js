@@ -377,35 +377,48 @@ const LocalProvider = {
     },
 
     listModels: async (config) => {
-        const baseUrl = config.baseUrl || 'http://localhost:11434/v1';
-        const url = `${baseUrl.replace(/\/$/, '')}/models`;
-        try {
-            const response = await fetch(url);
-            if (!response.ok) throw new Error('Failed to list Local models');
-            const data = await response.json();
-            return data.data.map(m => m.id);
-        } catch (error) {
-            if (error.message.includes('Failed to fetch') || error.name === 'TypeError') {
-                throw new Error('Connection failed. Make sure Ollama is running and OLLAMA_ORIGINS="*" is set.');
-            }
-            throw error;
-        }
-    }
-};
+        listModels: async (config) => {
+            const baseUrl = config.baseUrl || 'http://localhost:11434/v1';
+            const url = `${baseUrl.replace(/\/$/, '')}/models`;
 
-const AIService = {
-    generateResponse: async (config, context, question, instructions, chatHistory) => {
-        const provider = config.provider === 'local' ? LocalProvider : GeminiProvider;
-        return await provider.generateResponse(config, context, question, instructions, chatHistory);
-    },
-    generateSuggestions: async (config, context, instructions, lastQ, lastA, signal) => {
-        const provider = config.provider === 'local' ? LocalProvider : GeminiProvider;
-        // Gemini doesn't imply signal support yet but that is fine, JS ignores extra args. 
-        // We mainly need it for LocalProvider where queuing is an issue.
-        return await provider.generateSuggestions(config, context, instructions, lastQ, lastA, signal);
-    },
-    listModels: async (config) => {
-        const provider = config.provider === 'local' ? LocalProvider : GeminiProvider;
-        return await provider.listModels(config);
-    }
-};
+            const fetchOptions = {
+                method: 'GET',
+                headers: {}
+            };
+
+            if (config.apiKey) {
+                fetchOptions.headers['Authorization'] = `Bearer ${config.apiKey}`;
+                fetchOptions.headers['HTTP-Referer'] = 'https://tablewise.extension';
+                fetchOptions.headers['X-Title'] = 'TableWise';
+            }
+
+            try {
+                const response = await fetch(url, fetchOptions);
+                if (!response.ok) throw new Error('Failed to list Local/OpenRouter models');
+                const data = await response.json();
+                // OpenRouter: data.data, Ollama: data.models (or data.data in newer versions?)
+                const list = data.data || data.models || [];
+                return list.map(m => m.id);
+            } catch (error) {
+                if (error.message.includes('Failed to fetch') || error.name === 'TypeError') {
+                    throw new Error('Connection failed. For Ollama, check OLLAMA_ORIGINS. For OpenRouter, check Key.');
+                }
+                throw error;
+            }
+        }
+    };
+
+    const AIService = {
+        generateResponse: async (config, context, question, instructions, chatHistory) => {
+            const provider = (config.provider === 'local' || config.provider === 'openrouter') ? LocalProvider : GeminiProvider;
+            return await provider.generateResponse(config, context, question, instructions, chatHistory);
+        },
+        generateSuggestions: async (config, context, instructions, lastQ, lastA, signal) => {
+            const provider = (config.provider === 'local' || config.provider === 'openrouter') ? LocalProvider : GeminiProvider;
+            return await provider.generateSuggestions(config, context, instructions, lastQ, lastA, signal);
+        },
+        listModels: async (config) => {
+            const provider = (config.provider === 'local' || config.provider === 'openrouter') ? LocalProvider : GeminiProvider;
+            return await provider.listModels(config);
+        }
+    };
