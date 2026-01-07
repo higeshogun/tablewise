@@ -158,10 +158,17 @@ const LocalProvider = {
     listModels: async (config) => {
         const baseUrl = config.baseUrl || 'http://localhost:11434/v1';
         const url = `${baseUrl.replace(/\/$/, '')}/models`;
-        const response = await fetch(url);
-        if (!response.ok) throw new Error('Failed to list Local models');
-        const data = await response.json();
-        return data.data.map(m => m.id);
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Failed to list Local models');
+            const data = await response.json();
+            return data.data.map(m => m.id);
+        } catch (error) {
+            if (error.message.includes('Failed to fetch') || error.name === 'TypeError') {
+                throw new Error('Connection failed. Make sure Ollama is running and OLLAMA_ORIGINS="*" is set.');
+            }
+            throw error;
+        }
     }
 };
 
