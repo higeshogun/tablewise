@@ -4,6 +4,9 @@
 
 
 
+## Screenshots
+![TableWise Demo](screenshots/demo.png)
+
 ## Use Cases
 - **💰 Financial Research**: Instantly summarize quarterly earnings reports or stock history from news sites.
 - **🛒 Product Comparison**: Compare specs, prices, and online reviews in a clean, query-able format.
