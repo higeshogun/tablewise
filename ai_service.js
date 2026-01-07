@@ -201,7 +201,7 @@ const LocalProvider = {
 
         messages.push({ role: 'user', content: userMsg });
 
-        const response = await fetch(url, {
+        const fetchOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -210,7 +210,17 @@ const LocalProvider = {
                 stream: false,
                 temperature: tempOverride !== undefined ? tempOverride : (config.temperature !== undefined ? config.temperature : 0.2)
             })
-        });
+        };
+
+        // Add Authorization header if API key is present (for OpenRouter/Auth-gated Local)
+        if (config.apiKey) {
+            fetchOptions.headers['Authorization'] = `Bearer ${config.apiKey}`;
+            // OpenRouter specific: site URL and name (good practice)
+            fetchOptions.headers['HTTP-Referer'] = 'https://tablewise.extension';
+            fetchOptions.headers['X-Title'] = 'TableWise';
+        }
+
+        const response = await fetch(url, fetchOptions);
 
         if (!response.ok) {
             const err = await response.text();
