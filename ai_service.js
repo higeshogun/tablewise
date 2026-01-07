@@ -209,8 +209,16 @@ const LocalProvider = {
         Your task is to write a javascript function body to filter a list of row objects.
         The function body should assume a variable 'row' exists.
         'row' is an object with keys: ${JSON.stringify(headers)}.
-        Return ONLY the javascript code for the function body (e.g. "return row['Price'] > 100;").
-        Do not wrap in markdown. Do not explain.`;
+        
+        CRITICAL RULES:
+        1. Return ONLY the javascript code for the function body. No markdown.
+        2. Be robust: Convert values to lowercase for string comparison.
+        3. Handle numbers safely (e.g. parseFloat).
+        4. Use loose matching (includes) rather than strict equality for text.
+        
+        Example: 
+        return (row['Name'] || '').toLowerCase().includes('toyota') && parseFloat(row['Price']) > 10000;
+        `;
 
         const planPrompt = `User Question: "${question}"
         Write the JS condition to find relevant rows.`;
