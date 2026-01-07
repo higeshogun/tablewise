@@ -162,20 +162,51 @@ Please answer the question based on the data provided. Be concise and accurate.
 
 const LocalProvider = {
     // Helper to call Ollama
-    callLLM: async (config, systemMsg, userMsg, tempOverride) => {
+    callLLM: async (config, systemMsg, userMsg, tempOverride, chatHistory = []) => {
         const baseUrl = config.baseUrl || 'http://localhost:11434/v1';
         const url = `${baseUrl.replace(/\/$/, '')}/chat/completions`;
         const model = config.model || 'llama3';
+
+        // Construct messages array with history
+        let messages = [{ role: 'system', content: systemMsg }];
+
+        // Add chat history if present (excluding the very recent user message to avoid duplication if handled upstream)
+        // But here, chatHistory likely contains ALL messages including the one we just processed in popup.
+        // We need to be careful. popup.js adds the user message to chatMessages BEFORE calling generateResponse.
+        // So we should format the history.
+
+        if (chatHistory && chatHistory.length > 0) {
+            // Filter out empty messages and map roles
+            const historyMsgs = chatHistory.map(msg => ({
+                role: msg.role === 'user' ? 'user' : 'assistant',
+                content: msg.text
+            }));
+
+            // If the last message in history IS the current question, we don't need to add 'questions' again as userMsg.
+            // However, callLLM is used for planning too.
+            // Strategy: 
+            // 1. If chatHistory is passed, use it as the base (excluding system).
+            // 2. Append userMsg if provided and not already in history? 
+            // Simpler: Just append history before the final userMsg.
+            // Note: chatHistory from popup includes the *current* user message at the end.
+
+            // Let's rely on the caller to pass 'context' + 'question' as the final turn.
+            // We will use history for *previous* turns. 
+            // So we take all history EXCEPT the last one (which is the current user question).
+
+            if (historyMsgs.length > 1) {
+                messages = messages.concat(historyMsgs.slice(0, -1));
+            }
+        }
+
+        messages.push({ role: 'user', content: userMsg });
 
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 model: model,
-                messages: [
-                    { role: 'system', content: systemMsg },
-                    { role: 'user', content: userMsg }
-                ],
+                messages: messages,
                 stream: false,
                 temperature: tempOverride !== undefined ? tempOverride : (config.temperature !== undefined ? config.temperature : 0.2)
             })
@@ -190,7 +221,7 @@ const LocalProvider = {
         return data.choices[0].message.content;
     },
 
-    generateResponse: async (config, context, question, instructions) => {
+    generateResponse: async (config, context, question, instructions, chatHistory) => {
         // 1. Parsing Step
         const { headers, data } = TSVParser.parse(context);
 
@@ -201,10 +232,10 @@ const LocalProvider = {
         // If parsing fails or data is small, fallback to standard RAG
         if (!headers || headers.length === 0 || data.length < 5) {
             // Fallback
-            let systemMsg = 'You are a helpful data analyst.';
+            let systemMsg = 'You are a helpful data analyst. Answer using the provided data.';
             if (instructions) systemMsg += `\n\nContext:\n${instructions}`;
             systemMsg += `\n\nData:\n"""${context}"""`;
-            return await LocalProvider.callLLM(config, systemMsg, question);
+            return await LocalProvider.callLLM(config, systemMsg, question, undefined, chatHistory);
         }
 
         // 2. Planning Step (Agentic)
@@ -270,11 +301,11 @@ const LocalProvider = {
         }
 
         // 4. Final Answer Step
-        let finalSystem = 'You are a helpful data analyst.';
-        if (instructions) finalSystem += `\n\nContext:\n${instructions}`;
+        let finalSystem = 'You are a helpful data analyst. Answer the user question based solely on the provided data context.';
+        if (instructions) finalSystem += `\n\nCustom Instructions/Context:\n${instructions}`;
         finalSystem += `\n\nFiltered/Relevant Data:\n"""${filteredContext}"""`;
 
-        return await LocalProvider.callLLM(config, finalSystem, question);
+        return await LocalProvider.callLLM(config, finalSystem, question, undefined, chatHistory);
     },
 
     generateSuggestions: async (config, context, instructions, lastQ, lastA, signal) => {
@@ -334,9 +365,9 @@ const LocalProvider = {
 };
 
 const AIService = {
-    generateResponse: async (config, context, question, instructions) => {
+    generateResponse: async (config, context, question, instructions, chatHistory) => {
         const provider = config.provider === 'local' ? LocalProvider : GeminiProvider;
-        return await provider.generateResponse(config, context, question, instructions);
+        return await provider.generateResponse(config, context, question, instructions, chatHistory);
     },
     generateSuggestions: async (config, context, instructions, lastQ, lastA, signal) => {
         const provider = config.provider === 'local' ? LocalProvider : GeminiProvider;
