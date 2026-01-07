@@ -194,6 +194,10 @@ const LocalProvider = {
         // 1. Parsing Step
         const { headers, data } = TSVParser.parse(context);
 
+        // Debug Data Parsing
+        if (headers) console.log('[Agentic] Parsed Headers:', headers);
+        if (data && data.length > 0) console.log('[Agentic] First Row Sample:', data[0]);
+
         // If parsing fails or data is small, fallback to standard RAG
         if (!headers || headers.length === 0 || data.length < 5) {
             // Fallback
@@ -215,9 +219,12 @@ const LocalProvider = {
         2. Be robust: Convert values to lowercase for string comparison.
         3. Handle numbers safely (e.g. parseFloat).
         4. Use loose matching (includes) rather than strict equality for text.
+        5. IGNORE PUNCTUATION: When searching for IDs or codes, remove non-alphanumeric chars.
+           e.g. matching "audusd" should find "AUD/USD".
+           Snippet: (row['Col']||'').replace(/[^a-zA-Z0-9]/g, '').toLowerCase().includes('audusd')
         
         Example: 
-        return (row['Name'] || '').toLowerCase().includes('toyota') && parseFloat(row['Price']) > 10000;
+        return (row['Instrument']||'').replace(/[^a-z0-9]/gi,'').includes('audusd');
         `;
 
         const planPrompt = `User Question: "${question}"
