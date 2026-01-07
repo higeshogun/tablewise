@@ -27,11 +27,13 @@
 4. Click **Load Unpacked**.
 5. Select this folder.
 
-## setup
+## Setup
 1. Click the extension icon.
 2. Open **Settings** (gear icon).
 3. Enter your [Google Gemini API Key](https://aistudio.google.com/app/apikey).
 4. Start analyzing!
+
+![Settings Page](screenshots/settings.png)
 
 ## Tech Stack
 - Manifest V3
