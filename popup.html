@@ -97,12 +97,33 @@
                     </svg>
                 </button>
             </div>
+
             <div class="input-group">
-                <label for="api-key">Gemini API Key</label>
-                <input type="password" id="api-key" placeholder="Enter your Gemini API Key">
-                <p class="help-text">Get your key from <a href="https://aistudio.google.com/app/apikey"
-                        target="_blank">Google AI Studio</a></p>
+                <label for="ai-provider">AI Provider</label>
+                <select id="ai-provider"
+                    style="width: 100%; padding: 10px; border: 1px solid var(--border-color); background-color: var(--input-bg); color: var(--text-color); border-radius: 6px; font-size: 14px;">
+                    <option value="gemini">Google Gemini</option>
+                    <option value="local">Local LLM (OpenAI Compatible)</option>
+                </select>
             </div>
+
+            <div id="gemini-settings">
+                <div class="input-group">
+                    <label for="api-key">Gemini API Key</label>
+                    <input type="password" id="api-key" placeholder="Enter your Gemini API Key">
+                    <p class="help-text">Get your key from <a href="https://aistudio.google.com/app/apikey"
+                            target="_blank">Google AI Studio</a></p>
+                </div>
+            </div>
+
+            <div id="local-settings" class="hidden">
+                <div class="input-group">
+                    <label for="base-url">Base URL</label>
+                    <input type="text" id="base-url" placeholder="http://localhost:11434/v1">
+                    <p class="help-text">URL for OpenAI-compatible endpoint (e.g. Ollama, LocalAI)</p>
+                </div>
+            </div>
+
             <div class="input-group">
                 <label for="model-name">Model Name</label>
                 <select id="model-name"
@@ -113,9 +134,9 @@
                     <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash (Experimental)</option>
                     <option value="custom">Custom...</option>
                 </select>
-                <input type="text" id="custom-model-name" placeholder="Enter model name (e.g., gemini-1.5-pro-002)"
+                <input type="text" id="custom-model-name" placeholder="Enter model name (e.g., llama3)"
                     style="width: 100%; padding: 10px; border: 1px solid var(--border-color); background-color: var(--input-bg); color: var(--text-color); border-radius: 6px; font-size: 14px; margin-top: 8px; display: none;">
-                <p class="help-text">Select the Gemini model to use.</p>
+                <p class="help-text">Select or enter the model name to use.</p>
             </div>
             <div class="input-group">
                 <label for="custom-instructions">Custom Instructions / Context</label>
@@ -135,7 +156,7 @@
         </div>
     </div>
     <script src="clipboard_utils.js"></script>
-    <script src="gemini.js"></script>
+    <script src="ai_service.js"></script>
     <script src="popup.js"></script>
 </body>
 
