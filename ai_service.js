@@ -235,11 +235,11 @@ const LocalProvider = {
         // Use low temp for code generation
         let funcBody;
         try {
-            console.log('[Agentic] Asking Planner...');
+            // console.log('[Agentic] Asking Planner...');
             funcBody = await LocalProvider.callLLM(config, planSystem, planPrompt, 0.0);
             // Cleanup in case LLM adds backticks
             funcBody = funcBody.replace(/```javascript/g, '').replace(/```/g, '').trim();
-            console.log('[Agentic] Generated Plan:', funcBody);
+            // console.log('[Agentic] Generated Plan:', funcBody);
         } catch (e) {
             console.warn('[Agentic] Planning failed, falling back', e);
             funcBody = null;
@@ -250,7 +250,7 @@ const LocalProvider = {
         if (funcBody) {
             try {
                 const result = await SandboxInterface.executeFilter(funcBody, data);
-                console.log('[Agentic] Sandbox Result:', result); // DEBUG
+                // console.log('[Agentic] Sandbox Result:', result); 
                 if (result.success && Array.isArray(result.result) && result.result.length > 0) {
                     // Reconstruct simplified context
                     const subset = result.result.slice(0, 50); // Limit to top 50 matches to save context
