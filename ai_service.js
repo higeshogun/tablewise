@@ -247,12 +247,14 @@ const LocalProvider = {
         
         CRITICAL RULES:
         1. Return ONLY the javascript code for the function body. No markdown.
-        2. USE EXACT COLUMN NAMES: The 'row' keys are case-sensitive. Use the exact keys provided above.
+        2. YOUR CODE MUST START WITH 'return'. Do not write loops or if-statements that do not return.
+        3. The code must evaluate to TRUE (keep row) or FALSE (discard row).
+        4. USE EXACT COLUMN NAMES: The 'row' keys are case-sensitive. Use the exact keys provided above.
            Example: if keys are ['PRICE'], use row['PRICE'], NOT row['Price'].
-        3. Be robust: Convert values to lowercase for string comparison.
-        4. Handle numbers safely (e.g. parseFloat).
-        5. Use loose matching (includes) rather than strict equality for text.
-        6. IGNORE PUNCTUATION: When searching for IDs or codes, remove non-alphanumeric chars.
+        5. Be robust: Convert values to lowercase for string comparison.
+        6. Handle numbers safely (e.g. parseFloat).
+        7. Use loose matching (includes) rather than strict equality for text.
+        8. IGNORE PUNCTUATION: When searching for IDs or codes, remove non-alphanumeric chars.
            e.g. matching "audusd" should find "AUD/USD".
            Snippet: (row['Col']||'').replace(/[^a-zA-Z0-9]/g, '').toLowerCase().includes('audusd')
         
