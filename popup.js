@@ -76,20 +76,45 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateProviderUI(selectedProvider) {
         provider = selectedProvider;
+        const geminiSettingsDiv = document.getElementById('gemini-settings');
+        const localSettingsDiv = document.getElementById('local-settings');
+        const apiKeyLabel = document.querySelector('label[for="api-key"]');
+        const apiKeyInput = document.getElementById('api-key');
+
         if (selectedProvider === 'local') {
             geminiSettingsDiv.classList.add('hidden');
             localSettingsDiv.classList.remove('hidden');
-            // Suggest custom model if current is gemini default
-            if (modelName.startsWith('gemini')) {
+
+            // Local defaults
+            if (modelNameInput.value.startsWith('gemini')) {
                 modelNameInput.value = 'custom';
                 customModelNameInput.style.display = 'block';
-                if (customModelNameInput.value.startsWith('gemini') || !customModelNameInput.value) {
-                    customModelNameInput.value = 'llama3';
-                }
+                customModelNameInput.value = 'llama3';
+            }
+        } else if (selectedProvider === 'openrouter') {
+            // OpenRouter needs KEY + BaseURL + MaxRows
+            geminiSettingsDiv.classList.remove('hidden');
+            localSettingsDiv.classList.remove('hidden');
+
+            apiKeyLabel.textContent = 'OpenRouter API Key';
+            apiKeyInput.placeholder = 'sk-or-...';
+
+            const baseUrlInput = document.getElementById('base-url');
+            if (!baseUrlInput.value || baseUrlInput.value.includes('localhost')) {
+                baseUrlInput.value = 'https://openrouter.ai/api/v1';
+            }
+
+            if (modelNameInput.value.startsWith('gemini')) {
+                modelNameInput.value = 'custom';
+                customModelNameInput.style.display = 'block';
+                customModelNameInput.value = 'google/gemini-pro';
             }
         } else {
+            // Gemini
             geminiSettingsDiv.classList.remove('hidden');
             localSettingsDiv.classList.add('hidden');
+            apiKeyLabel.textContent = 'Gemini API Key';
+            apiKeyInput.placeholder = 'Enter your Gemini API Key';
         }
     }
 
@@ -126,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
             model = prov === 'gemini' ? 'gemini-1.5-flash-001' : 'llama3';
         }
 
-        if (prov === 'gemini' && !key) {
+        if ((prov === 'gemini' || prov === 'openrouter') && !key) {
             showStatus('Please enter a valid API key.', 'red');
             return;
         }
