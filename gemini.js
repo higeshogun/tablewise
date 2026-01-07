@@ -112,7 +112,7 @@ Identify any outliers.
             console.warn('Gemini Suggestion Error:', error);
             return []; // Fail silently for suggestions
         }
-    }
+    },
     listModels: async (apiKey) => {
         const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
         try {
