@@ -42,11 +42,14 @@
    # Mac/Linux
    OLLAMA_ORIGINS="*" ollama serve
    
-   # Windows (PowerShell)
-   $env:OLLAMA_ORIGINS="*"; ollama serve
+   ```
+   **Network Access (Remote Machine):**
+   If hosting one machine and accessing from another, you must bind to all interfaces:
+   ```bash
+   OLLAMA_HOST="0.0.0.0" OLLAMA_ORIGINS="*" ollama serve
    ```
 3. In TableWise Settings, select **Provider: Local LLM**.
-4. Set Base URL to `http://localhost:11434/v1` (default).
+4. Set Base URL to your server's IP, e.g., `http://192.168.1.50:11434/v1`.
 5. Enter your model name (e.g., `llama3`, `mistral`, `gemma2`).
 6. Click **Check Models** to verify the connection.
 
