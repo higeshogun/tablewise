@@ -284,13 +284,14 @@ const LocalProvider = {
                 // console.log('[Agentic] Sandbox Result:', result); 
                 if (result.success && Array.isArray(result.result) && result.result.length > 0) {
                     // Reconstruct simplified context
-                    const subset = result.result.slice(0, 50); // Limit to top 50 matches to save context
+                    const maxRows = config.maxRows || 50;
+                    const subset = result.result.slice(0, maxRows);
                     const subsetHeaders = headers.join('\t');
                     const subsetRows = subset.map(r => headers.map(h => r[h]).join('\t')).join('\n');
                     filteredContext = `${subsetHeaders}\n${subsetRows}`;
 
-                    if (result.result.length > 50) {
-                        filteredContext += `\n...(and ${result.result.length - 50} more matching rows)`;
+                    if (result.result.length > maxRows) {
+                        filteredContext += `\n...(and ${result.result.length - maxRows} more matching rows)`;
                     }
                 } else {
                     console.warn('Filter returned 0 results or error, using full context.');
