@@ -139,6 +139,11 @@
                 <p class="help-text">Select or enter the model name to use.</p>
             </div>
             <div class="input-group">
+                <label for="temperature">Temperature (Creativity): <span id="temp-value">0.2</span></label>
+                <input type="range" id="temperature" min="0" max="1" step="0.1" value="0.2" style="width: 100%;">
+                <p class="help-text">Lower (0.0) is more factual. Higher (1.0) is more creative.</p>
+            </div>
+            <div class="input-group">
                 <label for="custom-instructions">Custom Instructions / Context</label>
                 <textarea id="custom-instructions" rows="3"
                     placeholder="e.g., You are an expert financial analyst. This data represents..."

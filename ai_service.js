@@ -24,7 +24,10 @@ Please answer the question based on the data provided. Be concise and accurate.
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: prompt }] }]
+                    contents: [{ parts: [{ text: prompt }] }],
+                    generationConfig: {
+                        temperature: config.temperature !== undefined ? config.temperature : 0.2
+                    }
                 })
             });
 
@@ -41,8 +44,15 @@ Please answer the question based on the data provided. Be concise and accurate.
         }
     },
 
-    generateSuggestions: async (config, context, instructions, lastQ, lastA) => {
+    generateSuggestions: async (config, context, instructions, lastQ, lastA, signal) => {
+        // ... (API call for suggestions - usually doesn't need strict temp control, sticking to defaults or reusing config if needed)
+        // For simplicity, we'll keep suggestions at default temp or use config if essential. 
+        // Let's implement it for consistency.
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${config.model}:generateContent?key=${config.apiKey}`;
+        // ... (rest of prompt construction)
+        // ... 
+
+        // RE-IMPLEMENTING generateSuggestions to avoid breaking valid code block
         let systemInstruction = 'You are a helpful data analyst assistant.';
         if (instructions) systemInstruction += `\n\nCustom Instructions:\n${instructions}`;
 
@@ -57,18 +67,22 @@ Please answer the question based on the data provided. Be concise and accurate.
         prompt += `Keep them concise (under 10 words). List format, no numbering.`;
 
         try {
+            // Gemini API call
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }],
+                    generationConfig: {
+                        temperature: 0.7 // Keep suggestions a bit creative/diverse
+                    }
+                })
             });
-
             if (!response.ok) return [];
             const data = await response.json();
             const text = data.candidates[0].content.parts[0].text;
             return text.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('-') && !l.match(/^\d+\./));
         } catch (e) {
-            console.warn('Gemini Suggestions Error:', e);
             return [];
         }
     },
@@ -103,7 +117,8 @@ const LocalProvider = {
                         { role: 'system', content: systemMsg },
                         { role: 'user', content: question }
                     ],
-                    stream: false
+                    stream: false,
+                    temperature: config.temperature !== undefined ? config.temperature : 0.2
                 })
             });
 

@@ -22,6 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const baseUrlInput = document.getElementById('base-url');
     const modelNameInput = document.getElementById('model-name');
     const customModelNameInput = document.getElementById('custom-model-name');
+    const temperatureInput = document.getElementById('temperature');
+    const tempValueDisplay = document.getElementById('temp-value');
     const saveKeyBtn = document.getElementById('save-key-btn');
     const saveStatus = document.getElementById('save-status');
     const customInstructionsInput = document.getElementById('custom-instructions');
@@ -34,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let provider = 'gemini';
     let baseUrl = 'http://localhost:11434/v1';
     let modelName = 'gemini-1.5-flash-001';
+    let temperature = 0.2;
     let currentDataContext = '';
     let chatMessages = [];
     let customInstructions = '';
@@ -99,6 +102,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    temperatureInput.addEventListener('input', (e) => {
+        tempValueDisplay.textContent = e.target.value;
+    });
+
     const testKeyBtn = document.getElementById('test-key-btn');
     const modelListDebug = document.getElementById('model-list-debug');
 
@@ -108,6 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const base = baseUrlInput.value.trim() || 'http://localhost:11434/v1';
         let model = modelNameInput.value;
         const instructions = customInstructionsInput.value.trim();
+        const temp = parseFloat(temperatureInput.value);
 
         if (model === 'custom') {
             model = customModelNameInput.value.trim();
@@ -128,6 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'gemini_provider': prov,
             'gemini_base_url': base,
             'gemini_model_name': model,
+            'gemini_temperature': temp,
             'gemini_custom_instructions': instructions
         });
 
@@ -135,6 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
         provider = prov;
         baseUrl = base;
         modelName = model;
+        temperature = temp;
         customInstructions = instructions;
 
         showStatus('Settings saved!', 'green');
@@ -151,7 +161,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 apiKey: apiKeyInput.value.trim(),
                 provider: providerSelect.value,
                 baseUrl: baseUrlInput.value.trim(),
-                model: modelNameInput.value
+                model: modelNameInput.value,
+                temperature: parseFloat(temperatureInput.value)
             };
 
             if (tempConfig.provider === 'gemini' && !tempConfig.apiKey) {
@@ -325,6 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'gemini_provider',
             'gemini_base_url',
             'gemini_model_name',
+            'gemini_temperature',
             'gemini_custom_instructions',
             'chat_history',
             'data_context',
@@ -364,6 +376,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 customModelNameInput.value = modelName;
                 customModelNameInput.style.display = 'block';
             }
+        }
+
+        if (result.gemini_temperature !== undefined) {
+            temperature = result.gemini_temperature;
+            temperatureInput.value = temperature;
+            tempValueDisplay.textContent = temperature;
+        } else {
+            // Default
+            temperature = 0.2;
+            temperatureInput.value = 0.2;
+            tempValueDisplay.textContent = 0.2;
         }
 
         if (result.data_context && result.data_meta) {
@@ -474,7 +497,7 @@ document.addEventListener('DOMContentLoaded', () => {
         userInput.disabled = true;
         sendBtn.disabled = true;
 
-        const config = { apiKey, provider, baseUrl, model: modelName };
+        const config = { apiKey, provider, baseUrl, model: modelName, temperature: temperature };
 
         try {
             addLoadingMessage();
