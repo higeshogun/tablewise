@@ -497,7 +497,8 @@ document.addEventListener('DOMContentLoaded', () => {
         userInput.disabled = true;
         sendBtn.disabled = true;
 
-        const config = { apiKey, provider, baseUrl, model: modelName, temperature: temperature };
+        const maxRows = parseInt(document.getElementById('max-rows').value, 10) || 50;
+        const config = { apiKey, provider, baseUrl, model: modelName, temperature: temperature, maxRows: maxRows };
 
         try {
             addLoadingMessage();
