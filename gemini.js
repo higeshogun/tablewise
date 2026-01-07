@@ -113,4 +113,19 @@ Identify any outliers.
             return []; // Fail silently for suggestions
         }
     }
+    listModels: async (apiKey) => {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.error?.message || 'Failed to list models');
+            }
+            const data = await response.json();
+            return data.models || [];
+        } catch (error) {
+            console.error('Gemini ListModels Error:', error);
+            throw error;
+        }
+    }
 };

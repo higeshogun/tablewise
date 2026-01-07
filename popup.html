@@ -124,8 +124,14 @@
                     style="width: 100%; padding: 10px; border: 1px solid var(--border-color); background-color: var(--input-bg); color: var(--text-color); border-radius: 6px; font-size: 14px; resize: vertical;"></textarea>
                 <p class="help-text">Optional. Provide domain context or specific instructions.</p>
             </div>
-            <button id="save-key-btn" class="secondary-btn">Save Settings</button>
+            <div style="display: flex; gap: 8px;">
+                <button id="save-key-btn" class="secondary-btn" style="flex: 1;">Save Settings</button>
+                <button id="test-key-btn" class="secondary-btn" style="flex: 1;">Check Models</button>
+            </div>
             <p id="save-status" class="status-msg"></p>
+            <div id="model-list-debug" class="help-text"
+                style="max-height: 100px; overflow-y: auto; display: none; border: 1px solid var(--border-color); padding: 8px; margin-top: 8px;">
+            </div>
         </div>
     </div>
     <script src="clipboard_utils.js"></script>

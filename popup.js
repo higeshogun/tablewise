@@ -73,6 +73,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    const testKeyBtn = document.getElementById('test-key-btn');
+    const modelListDebug = document.getElementById('model-list-debug');
+
     saveKeyBtn.addEventListener('click', async () => {
         const key = apiKeyInput.value.trim();
         let model = modelNameInput.value;
@@ -82,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
             model = customModelNameInput.value.trim();
         }
 
-        model = model || 'gemini-1.5-flash';
+        model = model || 'gemini-1.5-flash-001';
 
         if (key) {
             await chrome.storage.local.set({
@@ -103,6 +106,39 @@ document.addEventListener('DOMContentLoaded', () => {
             showStatus('Please enter a valid key.', 'red');
         }
     });
+
+    if (testKeyBtn) {
+        testKeyBtn.addEventListener('click', async () => {
+            const key = apiKeyInput.value.trim();
+            if (!key) {
+                alert('Enter an API key first.');
+                return;
+            }
+
+            testKeyBtn.disabled = true;
+            testKeyBtn.innerText = 'Checking...';
+            modelListDebug.style.display = 'block';
+            modelListDebug.innerText = 'Fetching available models...';
+
+            try {
+                const models = await Gemini.listModels(key);
+                const modelNames = models.map(m => m.name.replace('models/', ''));
+
+                // Filter for generateContent supported
+                const generateModels = models.filter(m => m.supportedGenerationMethods.includes('generateContent'))
+                    .map(m => m.name.replace('models/', ''));
+
+                modelListDebug.innerText = 'Available Models:\n' + generateModels.join('\n');
+                showStatus('Connection Successful!', 'green');
+            } catch (e) {
+                modelListDebug.innerText = 'Error:\n' + e.message;
+                showStatus('Connection Failed.', 'red');
+            } finally {
+                testKeyBtn.disabled = false;
+                testKeyBtn.innerText = 'Check Models';
+            }
+        });
+    }
 
     analyzeBtn.addEventListener('click', async () => {
         if (!apiKey) {
