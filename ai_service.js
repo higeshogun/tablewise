@@ -120,7 +120,7 @@ const LocalProvider = {
         }
     },
 
-    generateSuggestions: async (config, context, instructions, lastQ, lastA) => {
+    generateSuggestions: async (config, context, instructions, lastQ, lastA, signal) => {
         const baseUrl = config.baseUrl || 'http://localhost:11434/v1';
         const url = `${baseUrl.replace(/\/$/, '')}/chat/completions`;
         const model = config.model || 'llama3';
@@ -143,13 +143,15 @@ const LocalProvider = {
                     model: model,
                     messages: [{ role: 'user', content: prompt }],
                     stream: false
-                })
+                }),
+                signal: signal // Pass signal here
             });
             if (!response.ok) return [];
             const data = await response.json();
             const text = data.choices[0].message.content;
             return text.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('-') && !l.match(/^\d+\./));
         } catch (e) {
+            if (e.name === 'AbortError') throw e; // Propagate abort
             console.warn('Local LLM Suggestions Error:', e);
             return [];
         }
@@ -177,9 +179,11 @@ const AIService = {
         const provider = config.provider === 'local' ? LocalProvider : GeminiProvider;
         return await provider.generateResponse(config, context, question, instructions);
     },
-    generateSuggestions: async (config, context, instructions, lastQ, lastA) => {
+    generateSuggestions: async (config, context, instructions, lastQ, lastA, signal) => {
         const provider = config.provider === 'local' ? LocalProvider : GeminiProvider;
-        return await provider.generateSuggestions(config, context, instructions, lastQ, lastA);
+        // Gemini doesn't imply signal support yet but that is fine, JS ignores extra args. 
+        // We mainly need it for LocalProvider where queuing is an issue.
+        return await provider.generateSuggestions(config, context, instructions, lastQ, lastA, signal);
     },
     listModels: async (config) => {
         const provider = config.provider === 'local' ? LocalProvider : GeminiProvider;

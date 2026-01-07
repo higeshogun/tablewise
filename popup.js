@@ -457,9 +457,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    let suggestionController = null;
+
     async function sendMessage() {
         const text = userInput.value.trim();
         if (!text) return;
+
+        // Cancel any pending suggestions to free up the Local LLM
+        if (suggestionController) {
+            suggestionController.abort();
+            suggestionController = null;
+        }
 
         addMessage('user', text);
         userInput.value = '';
@@ -499,11 +507,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function generateAndShowSuggestions(config, context, instructions, lastQ, lastA) {
+        // Create new controller
+        suggestionController = new AbortController();
+        const signal = suggestionController.signal;
+
         try {
-            const suggestions = await AIService.generateSuggestions(config, context, instructions, lastQ, lastA);
+            const suggestions = await AIService.generateSuggestions(config, context, instructions, lastQ, lastA, signal);
             if (suggestions && suggestions.length > 0) renderSuggestions(suggestions);
         } catch (e) {
-            console.warn('Suggestions failed: ', e);
+            if (e.name === 'AbortError') {
+                console.log('Suggestions generation aborted by user action.');
+            } else {
+                console.warn('Suggestions failed: ', e);
+            }
+        } finally {
+            // Clean up if this was the active controller
+            if (suggestionController && suggestionController.signal === signal) {
+                suggestionController = null;
+            }
         }
     }
 
