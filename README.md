@@ -15,7 +15,10 @@
 - **Analyze Page**: Automatically detects and extracts tables (HTML or AG Grid) from the active tab.
 - **Analyze Clipboard**: Paste Excel/Sheets data directly to get insights.
 - **AI Chat**: Ask questions, get summaries, and identify trends using the integrated chat interface.
-- **Local LLM Support**: Connect to Ollama or other OpenAI-compatible local servers for offline analysis.
+- **Persistent Chat History**: Previous conversations are saved and restored automatically.
+- **Agentic RAG**: Uses a two-step "Planner & Executor" system to intelligently filter large datasets before answering, ensuring high accuracy.
+- **Local LLM Support**: Connect to **Ollama** or **LocalAI** for private, offline analysis.
+- **OpenRouter Support**: Access any model (Claude 3.5, GPT-4, Llama 3) via OpenRouter API.
 - **Smart Suggestions**: Context-aware follow-up questions generated automatically.
 - **Privacy Focused**: Your API Key is stored locally. Data is sent to the AI provider only when you explicitly analyze it.
 
@@ -41,23 +44,25 @@
    ```bash
    # Mac/Linux
    OLLAMA_ORIGINS="*" ollama serve
-   
-   ```
-   **Network Access (Remote Machine):**
-   If hosting one machine and accessing from another, you must bind to all interfaces:
-   ```bash
-   OLLAMA_HOST="0.0.0.0" OLLAMA_ORIGINS="*" ollama serve
    ```
 3. In TableWise Settings, select **Provider: Local LLM**.
-4. Set Base URL to your server's IP, e.g., `http://192.168.1.50:11434/v1`.
-5. Enter your model name (e.g., `llama3`, `mistral`, `gemma2`).
-6. Click **Check Models** to verify the connection.
+4. Set Base URL (default is `http://localhost:11434/v1`).
+5. Enter your model name (e.g., `llama3`).
+6. **Max Context Rows**: Adjust this setting to control how much data is sent to the local model (Default: 50 rows).
+
+### Option C: OpenRouter (Any Model)
+1. Get an API Key from [OpenRouter](https://openrouter.ai).
+2. In TableWise Settings, select **Provider: OpenRouter**.
+3. Enter your **OpenRouter API Key**.
+4. Set the Model Name (e.g., `google/gemini-2.0-flash-exp:free`, `anthropic/claude-3-haiku`).
+5. Click **Check Models** to see what's available to your key.
 
 ## Tech Stack
 - Manifest V3
 - Vanilla JS / CSS
 - Google Gemini API
-- OpenAI-Compatible API (for Local LLMs)
+- OpenAI-Compatible API Client (Ollama/OpenRouter)
+- Agentic RAG Pipeline (Planner/Executor)
 
 ## License
 MIT
