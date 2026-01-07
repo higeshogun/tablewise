@@ -1,6 +1,6 @@
 # TableWise Chrome Extension
 
-**TableWise** is a powerful Chrome Extension that allows you to instantly analyze tabular data from any webpage or your clipboard using Google's Gemini AI or a **Local LLM** (via Ollama).
+**TableWise** is a powerful Chrome Extension that allows you to instantly analyze tabular data from any webpage or your clipboard using Google's Gemini AI, openrouter model or a **Local LLM** (via Ollama).
 
 ## Screenshots
 ![TableWise Demo](screenshots/demo.png)
