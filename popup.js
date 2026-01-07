@@ -391,9 +391,9 @@ document.addEventListener('DOMContentLoaded', () => {
             chatHistory.innerHTML = '';
             addMessage('ai', `I have analyzed the **${sourceLabel}**. What would you like to know?`);
 
-            // Suggestions
-            const config = { apiKey, provider, baseUrl, model: modelName };
-            generateAndShowSuggestions(config, data, customInstructions);
+            // Suggestions disabled on initial load per user request
+            // const config = { apiKey, provider, baseUrl, model: modelName };
+            // generateAndShowSuggestions(config, data, customInstructions);
         }
 
         updateUIForData(rows, cols, sourceLabel);
