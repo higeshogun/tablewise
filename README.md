@@ -2,8 +2,7 @@
 
 **TableWise** is a powerful Chrome Extension that allows you to instantly analyze tabular data from any webpage or your clipboard using Google's Gemini AI.
 
-## Screenshots
-![TableWise Demo](screenshots/demo.png)
+
 
 ## Use Cases
 - **💰 Financial Research**: Instantly summarize quarterly earnings reports or stock history from news sites.
