@@ -231,8 +231,9 @@ const LocalProvider = {
         return data.choices[0].message.content;
     },
 
-    generateResponse: async (config, context, question, instructions, chatHistory) => {
+    generateResponse: async (config, context, question, instructions, chatHistory, onProgress) => {
         // 1. Parsing Step
+        if (onProgress) onProgress('Analyzing Data...');
         const { headers, data } = TSVParser.parse(context);
 
         // Debug Data Parsing
@@ -241,6 +242,7 @@ const LocalProvider = {
 
         // If parsing fails or data is small, fallback to standard RAG
         if (!headers || headers.length === 0 || data.length < 5) {
+            if (onProgress) onProgress('Generating Answer...');
             // Fallback
             let systemMsg = 'You are a helpful data analyst. Answer using the provided data.';
             if (instructions) systemMsg += `\n\nContext:\n${instructions}`;
@@ -249,6 +251,8 @@ const LocalProvider = {
         }
 
         // 2. Planning Step (Agentic)
+        if (onProgress) onProgress('Planning Query...');
+        // Ask LLM for a filter function
         // Ask LLM for a filter function
         const planSystem = `You are a JavaScript Expert. 
         Your task is to write a javascript function body to filter a list of row objects.
@@ -292,6 +296,7 @@ const LocalProvider = {
         let filteredContext = context;
         let matchCountMsg = '';
         if (funcBody) {
+            if (onProgress) onProgress('Filtering Data...');
             try {
                 const result = await SandboxInterface.executeFilter(funcBody, data);
                 console.log('[Agentic] Sandbox Result:', result);
@@ -329,6 +334,7 @@ const LocalProvider = {
         }
 
         // 4. Final Answer Step
+        if (onProgress) onProgress('Thinking...');
         let finalSystem = 'You are a helpful data analyst. Answer the user question based solely on the provided data context.';
         if (instructions) finalSystem += `\n\nCustom Instructions/Context:\n${instructions}`;
         finalSystem += `\n\nFiltered/Relevant Data:\n"""${filteredContext}"""`;
