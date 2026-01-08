@@ -538,7 +538,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             addLoadingMessage();
-            const response = await AIService.generateResponse(config, currentDataContext, text, customInstructions, chatMessages);
+            const response = await AIService.generateResponse(
+                config,
+                currentDataContext,
+                text,
+                customInstructions,
+                chatMessages,
+                (status) => updateLoadingStatus(status)
+            );
             addMessage('ai', response);
             generateAndShowSuggestions(config, currentDataContext, customInstructions, text, response);
         } catch (error) {
@@ -556,9 +563,26 @@ document.addEventListener('DOMContentLoaded', () => {
         if (document.querySelector('.message.loading')) return;
         const msgDiv = document.createElement('div');
         msgDiv.classList.add('message', 'loading');
-        msgDiv.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+        // Structure: Dots + Status Text
+        msgDiv.innerHTML = `
+            <div class="loading-dots">
+                <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+            </div>
+            <span class="loading-status" style="margin-left: 8px; font-size: 12px; color: #666;"></span>
+        `;
+        // Flex container to align dots and text
+        msgDiv.style.display = 'flex';
+        msgDiv.style.alignItems = 'center';
+
         chatHistory.appendChild(msgDiv);
         chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    function updateLoadingStatus(text) {
+        const statusSpan = document.querySelector('.message.loading .loading-status');
+        if (statusSpan) {
+            statusSpan.textContent = text;
+        }
     }
 
     function removeLoadingMessage() {
