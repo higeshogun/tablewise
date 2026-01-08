@@ -408,9 +408,9 @@ const LocalProvider = {
 };
 
 const AIService = {
-    generateResponse: async (config, context, question, instructions, chatHistory) => {
+    generateResponse: async (config, context, question, instructions, chatHistory, onProgress) => {
         const provider = (config.provider === 'local' || config.provider === 'openrouter') ? LocalProvider : GeminiProvider;
-        return await provider.generateResponse(config, context, question, instructions, chatHistory);
+        return await provider.generateResponse(config, context, question, instructions, chatHistory, onProgress);
     },
     generateSuggestions: async (config, context, instructions, lastQ, lastA, signal) => {
         const provider = (config.provider === 'local' || config.provider === 'openrouter') ? LocalProvider : GeminiProvider;
